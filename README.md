@@ -4,6 +4,25 @@ Open Occupation Blueprint for **ISCO-08 3322**: Commercial Sales Representatives
 
 This repository designs a forkable OSS business for an independent sales representation practice: a sample-handling and order-documentation robot manages client orders under a governor-gated actor, so the practice keeps its own order records instead of renting a closed sales-CRM SaaS.
 
+**Maturity: `:implemented`.** `src/salesrep/` implements the
+`SalesRepresentationActor` as a `langgraph.graph/state-graph` (`salesrep.actor`)
+wired to a `Sales Advisor` (`salesrep.advisor`) and an independent
+`SalesRepresentationGovernor` (`salesrep.governor`), following the
+itonami actor pattern (ADR-2607011000): `:intake -> :advise -> :govern
+-> :decide -+-> :commit (:ok?) +-> :request-approval (:escalate?,
+human-in-the-loop interrupt) +-> :hold (:hard?)`. 14 tests / 29
+assertions green (`clojure -M:test`). HARD invariants (always hold,
+never overridable): client provenance, no-actuation (`:effect` must be
+`:propose`), a registered order basis for any order proposal, the
+order amount not exceeding the client's registered pricing-authority
+ceiling (submission beyond it is unauthorized submission, not routine
+order), and client credit check completion before any order can be
+processed (processing without credit evidence is incomplete customer due
+diligence, not proper account management). Always-escalate ops (human
+sign-off regardless of confidence, mapping this repo's Trust Controls in
+[`docs/business-model.md`](docs/business-model.md)): `:submit-order`
+and `:accept-account`.
+
 ## Robotics premise
 
 All cloud-itonami verticals are designed on the premise that a **robot performs
