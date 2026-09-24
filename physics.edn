@@ -1,0 +1,33 @@
+;; What this occupation's robot physically does, declared for
+;; kotoba.robotics.process (kotoba-lang/robotics). `kbb -M:physics` runs it.
+;;
+;; README "Robotics premise": a sample-handling and order-documentation robot
+;; performs sample staging, order-form printing and physical archival (ISCO
+;; 3322 commercial sales representatives). Its physical work: hauling the
+;; sample cases from the stockroom to the client meeting room, and staging
+;; individual samples on the display shelf.
+;;
+;; Every number without a cited source is marked `estimate` in its :basis.
+;; Replacing an estimate with a sourced value is this bot's growth work.
+{:physics/schema "itonami.physical-ai.spec.v1"
+ :repo "cloud-itonami/cloud-itonami-isco-3322"
+ :cases
+ [{:id :sample-cases-to-meeting-room
+   :kind :transport
+   :procedure "robot hauls a trolley of sample cases 40 m from the stockroom to the client meeting room"
+   :params {:mass-kg 40.0 :distance-m 40.0 :v-max-mps 1.0 :a-max-mps2 0.6
+            :brake-decel-mps2 0.8 :drive-force-n 100.0 :crr 0.02
+            :cog-height-m 0.55 :support-half-length-m 0.30}
+   :sweep {:param :payload-kg :values [5.0 20.0 40.0 80.0 120.0 200.0]}
+   :quantity :cycle-time-s
+   :limit {:max 60.0 :basis "estimate: samples arrive inside the 1-minute gap the rep leaves between greeting and presenting"}
+   :boundary {:lo 5.0 :hi 450.0}}
+  {:id :sample-to-display-shelf
+   :kind :manipulator
+   :procedure "arm stages one product sample from the open case onto the display shelf"
+   :params {:l1-m 0.35 :l2-m 0.30 :m1-kg 2.5 :m2-kg 1.8
+            :from [0.45 0.05] :to [0.20 0.45] :duration-s 1.5 :steps 300}
+   :sweep {:param :payload-kg :values [0.2 0.5 1.0 2.0 3.0]}
+   :quantity :peak-tau1-nm
+   :limit {:max 25.0 :basis "estimate: continuous shoulder torque of a ~2 kg-payload desktop arm"}
+   :boundary {:lo 0.05 :hi 10.0}}]}
